@@ -1,0 +1,64 @@
+stages:
+  - build
+  - test
+  - deploy
+  - verify
+
+# build docker image:
+#   stage: build
+#   image: docker:latest
+#   services:
+#     - docker:dind
+#   before_script:
+#     - test -f docker/Dockerfile
+#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#   script:
+#     - docker build -t $CI_REGISTRY_IMAGE:$CI_PIPELINE_ID -f docker/Dockerfile .
+#     - docker tag $CI_REGISTRY_IMAGE:$CI_PIPELINE_ID $CI_REGISTRY_IMAGE:latest
+#     - docker push $CI_REGISTRY_IMAGE:$CI_PIPELINE_ID
+#     - docker push $CI_REGISTRY_IMAGE:latest
+
+use github module URLs:
+  stage: build
+  image: alpine:latest
+  script:
+    - sed -i 's_https://gitlab.aristanetworks.com/tac-team/_https://github.com/arista-netdevops-community/_g' main.tf
+    - sed -i 's_https://gitlab.aristanetworks.com/tac-team/_https://github.com/arista-netdevops-community/_g' README.md
+    - sed -i "s/DEVELOPMENT_RELEASE/$CI_COMMIT_SHORT_SHA/g" main.tf
+  rules:
+    - if: $CI_COMMIT_BRANCH == "github"
+
+check for sensitive variables:
+  stage: test
+  image: alpine:latest
+  script:
+    - if egrep -R '^cvp_download_token(.*)' *|grep -v PLACE_YOUR_PORTAL_TOKEN_HERE; then false; else true; fi
+
+push to github:
+  stage: deploy
+  image:
+    name: alpine/git:latest
+    entrypoint:
+      - /bin/sh
+      - -c
+  environment:
+    name: github
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo -e "$SSH_CONFIG" > ~/.ssh/config
+    - echo "$GITHUB_DEPLOY_KEY"|base64 -d > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+    - apk add --no-cache rsync
+    - git config --global user.name "$GITLAB_USER_NAME"
+    - git config --global user.email "$GITLAB_USER_EMAIL"
+  script:
+    - git clone $GITHUB_PROJECT /tmp/$CI_PROJECT_NAME
+    - rsync -avz --exclude=.git --exclude=.gitlab-ci.yml . /tmp/$CI_PROJECT_NAME
+    - cd /tmp/$CI_PROJECT_NAME
+    - git diff
+    - git add .
+    - git commit -m "$CI_COMMIT_MESSAGE"
+    - git push
+  after_script:
+    - echo "Pushed $CI_COMMIT_MESSAGE"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "github"
