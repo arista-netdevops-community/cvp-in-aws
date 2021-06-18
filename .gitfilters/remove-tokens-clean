@@ -5,11 +5,4 @@
 #   clean  = .gitfilters/remove-tokens-clean
 #   smudge = .gitfilters/remove-tokens-smudge
 set -e
-for file in examples/*.tfvars; do
-  TOKEN=$(grep cvp_download_token $file |cut -f2 -d\")
-  if [[ $TOKEN && $TOKEN != "PLACE_YOUR_PORTAL_TOKEN_HERE" ]]; then
-    echo "Sanitizing tokens in $file..."
-    echo $TOKEN > /tmp/$(basename $file)
-    sed -i 's/\(cvp_download_token.*=\) ".*"/\1 "PLACE_YOUR_PORTAL_TOKEN_HERE"/g' $file
-  fi
-done
+sed 's/\(cvp_download_token.*=\) ".*"/\1 "PLACE_YOUR_PORTAL_TOKEN_HERE"/g'
