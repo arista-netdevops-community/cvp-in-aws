@@ -5,8 +5,8 @@
 # 2. Add the following lines to your .git/config:
 #
 # [filter "remove-tokens"]
-# clean  = .gitfilters/remove-tokens-clean
-# smudge = .gitfilters/remove-tokens-smudge
+#   clean  = .gitfilters/remove-tokens-clean
+#   smudge = .gitfilters/remove-tokens-smudge
 set -e
 if [ -f ~/.cvp_download_token ]; then
   TOKEN=$(cat ~/.cvp_download_token)

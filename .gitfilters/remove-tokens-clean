@@ -5,7 +5,7 @@
 # 2. Add the following lines to your .git/config:
 #
 # [filter "remove-tokens"]
-# clean  = .gitfilters/remove-tokens-clean
-# smudge = .gitfilters/remove-tokens-smudge
+#   clean  = .gitfilters/remove-tokens-clean
+#   smudge = .gitfilters/remove-tokens-smudge
 set -e
 sed 's/\(cvp_download_token.*=\) ".*"/\1 "PLACE_YOUR_PORTAL_TOKEN_HERE"/g'
