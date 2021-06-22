@@ -6,7 +6,7 @@ variable "cluster_name" {
   type = string
 }
 variable "cluster_size" {
-  type =  string
+  type = string
 }
 variable "cluster_zone" {
   type    = string
@@ -23,7 +23,7 @@ variable "vm_admin_user" {
 }
 variable "vm_disk_device" {
   type    = string
-  default = "sdx"
+  default = "/dev/sdx"
 }
 variable "vm_disk_type" {
   type    = string
@@ -53,6 +53,6 @@ variable "cluster_public_eos_communication" {
   default = false
 }
 variable "eos_ip_range" {
-  type    = list
+  type    = list(any)
   default = []
 }

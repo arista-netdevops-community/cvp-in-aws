@@ -42,7 +42,7 @@ variable "cvp_cluster_vm_admin_user" {
   default     = "cvpsshadmin"
 
   validation {
-    condition = var.cvp_cluster_vm_admin_user != "cvpadmin"
+    condition     = var.cvp_cluster_vm_admin_user != "cvpadmin"
     error_message = "The cvpadmin user is reserved and cannot be used."
   }
 }
@@ -64,7 +64,7 @@ variable "cvp_cluster_vm_private_key" {
 variable "cvp_cluster_vm_type" {
   description = "The type of instances used for CVP"
   type        = string
-  default     = "c5.2xlarge"
+  default     = "c5.4xlarge"
 }
 variable "cvp_download_token" {
   description = "Arista Portal token used to download CVP."
@@ -84,10 +84,10 @@ variable "cvp_install_size" {
   description = "CVP installation size."
   type        = string
 
-  default     = null
+  default = null
 
   validation {
-    condition = var.cvp_install_size == "demo" || var.cvp_install_size == "small" || var.cvp_install_size == "production" || var.cvp_install_size == "prod_wifi" || var.cvp_install_size == null
+    condition     = var.cvp_install_size == "demo" || var.cvp_install_size == "small" || var.cvp_install_size == "production" || var.cvp_install_size == "prod_wifi" || var.cvp_install_size == null
     error_message = "CVP install size must be one of 'demo', 'small', 'production' or 'prod_wifi'."
   }
 }
@@ -119,7 +119,7 @@ variable "cvp_vm_image" {
 
 variable "eos_ip_range" {
   description = "IP ranges used by EOS devices that will be managed by the CVP cluster."
-  type        = list
+  type        = list(any)
   default     = []
 }
 
@@ -158,7 +158,7 @@ variable "aws_zone" {
   type        = string
 
   validation {
-    condition = length(var.aws_zone) == 1 && can(regex("[a-zA-z]", var.aws_zone))
+    condition     = length(var.aws_zone) == 1 && can(regex("[a-zA-z]", var.aws_zone))
     error_message = "The zone should be a letter matching the regex [a-zA-z]."
   }
 }

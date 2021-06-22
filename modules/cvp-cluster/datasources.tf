@@ -1,3 +1,4 @@
 data "aws_subnet" "cvp_nodes" {
-  id = var.aws_subnet
+  count = var.cluster_size
+  id    = var.aws_subnet
 }
