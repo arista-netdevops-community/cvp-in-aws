@@ -207,6 +207,10 @@ module "cvp_cluster" {
   vm_ssh_key                       = fileexists(var.cvp_cluster_vm_key) == true ? "${split(" ", file(var.cvp_cluster_vm_key))[0]} ${split(" ", file(var.cvp_cluster_vm_key))[1]}" : null
   vm_admin_user                    = var.cvp_cluster_vm_admin_user
   vm_remove_data_disk              = var.cvp_cluster_remove_disks
+
+  depends_on = [
+    aws_route_table_association.vpc_network[0]
+  ]
 }
 
 resource "null_resource" "start_instances" {
@@ -233,7 +237,7 @@ locals {
       password = "CentosAristaCVP"
     }
   }
-  vm = [
+  vm = length(module.cvp_cluster.nodes) == 1 ? ([
     {
       ssh       = local.vm_commons.ssh
       bootstrap = local.vm_commons.bootstrap
@@ -266,7 +270,104 @@ locals {
         ntp = var.cvp_ntp
       }
     }
-  ]
+  ]) : ([
+    {
+      ssh       = local.vm_commons.ssh
+      bootstrap = local.vm_commons.bootstrap
+      disk = {
+        data = {
+          device = (
+            contains(split(".", var.cvp_cluster_vm_type), "c5") ? "/dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_${replace(module.cvp_cluster.data_disk[0].id, "-", "")}" : module.cvp_cluster.data_disk_attachment[0].device_name
+          )
+        }
+      }
+      cpu = {
+        number = module.cvp_cluster.nodes[0].cpu_core_count * module.cvp_cluster.nodes[0].cpu_threads_per_core
+      }
+      memory = {
+        number = module.cvp_cluster.nodes[0].cpu_core_count * 2 * 1024
+      }
+      network = {
+        private = {
+          address = module.cvp_cluster.nodes[0].private_ip
+          subnet = {
+            netmask       = cidrnetmask(module.cvp_cluster.subnets[0].cidr_block)
+            default_route = cidrhost(module.cvp_cluster.subnets[0].cidr_block, 1)
+          }
+        }
+        public = {
+          address = module.cvp_cluster.node_ips[0].public_ip
+        }
+      }
+      config = {
+        ntp = var.cvp_ntp
+      }
+    },
+    {
+      ssh       = local.vm_commons.ssh
+      bootstrap = local.vm_commons.bootstrap
+      disk = {
+        data = {
+          device = (
+            contains(split(".", var.cvp_cluster_vm_type), "c5") ? "/dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_${replace(module.cvp_cluster.data_disk[1].id, "-", "")}" : module.cvp_cluster.data_disk_attachment[1].device_name
+          )
+        }
+      }
+      cpu = {
+        number = module.cvp_cluster.nodes[1].cpu_core_count * module.cvp_cluster.nodes[1].cpu_threads_per_core
+      }
+      memory = {
+        number = module.cvp_cluster.nodes[1].cpu_core_count * 2 * 1024
+      }
+      network = {
+        private = {
+          address = module.cvp_cluster.nodes[1].private_ip
+          subnet = {
+            netmask       = cidrnetmask(module.cvp_cluster.subnets[1].cidr_block)
+            default_route = cidrhost(module.cvp_cluster.subnets[1].cidr_block, 1)
+          }
+        }
+        public = {
+          address = module.cvp_cluster.node_ips[1].public_ip
+        }
+      }
+      config = {
+        ntp = var.cvp_ntp
+      }
+    },
+    {
+      ssh       = local.vm_commons.ssh
+      bootstrap = local.vm_commons.bootstrap
+      disk = {
+        data = {
+          device = (
+            contains(split(".", var.cvp_cluster_vm_type), "c5") ? "/dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_${replace(module.cvp_cluster.data_disk[2].id, "-", "")}" : module.cvp_cluster.data_disk_attachment[2].device_name
+          )
+        }
+      }
+      cpu = {
+        number = module.cvp_cluster.nodes[2].cpu_core_count * module.cvp_cluster.nodes[2].cpu_threads_per_core
+      }
+      memory = {
+        number = module.cvp_cluster.nodes[2].cpu_core_count * 2 * 1024
+      }
+      network = {
+        private = {
+          address = module.cvp_cluster.nodes[2].private_ip
+          subnet = {
+            netmask       = cidrnetmask(module.cvp_cluster.subnets[2].cidr_block)
+            default_route = cidrhost(module.cvp_cluster.subnets[2].cidr_block, 1)
+          }
+        }
+        public = {
+          address = module.cvp_cluster.node_ips[2].public_ip
+        }
+      }
+      config = {
+        ntp = var.cvp_ntp
+      }
+    }
+  ])
 }
 module "cvp_provision_nodes" {
   #source = "git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git"
@@ -275,7 +376,7 @@ module "cvp_provision_nodes" {
   cloud_provider                    = "aws"
   nodes                             = module.cvp_cluster.nodes
   subnets                           = module.cvp_cluster.subnets
-  vm                                = local.vm
+  vm                                = length(local.vm) == 1 ? [local.vm[0]] : local.vm
   cvp_version                       = var.cvp_version
   cvp_download_token                = var.cvp_download_token
   cvp_install_size                  = var.cvp_install_size != null ? var.cvp_install_size : null
