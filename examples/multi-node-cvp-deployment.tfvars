@@ -1,5 +1,7 @@
 aws_region                           = "us-east-2"
 aws_zone                             = "c"
+aws_profile                          = "cvp"
+aws_start_instances                  = true
 cvp_cluster_name                     = "multinode-cvp-cluster"
 cvp_cluster_size                     = "3"
 cvp_cluster_public_management        = true
