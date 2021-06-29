@@ -142,8 +142,9 @@ locals {
 }
 
 resource "aws_vpc" "vpc_network" {
-  count      = var.aws_network == null ? 1 : 0
-  cidr_block = var.aws_network_cidr
+  count                = var.aws_network == null ? 1 : 0
+  cidr_block           = var.aws_network_cidr
+  enable_dns_hostnames = true
   tags = {
     Name = "vpc-${var.cvp_cluster_name}"
   }
@@ -268,6 +269,7 @@ locals {
       }
       config = {
         ntp = var.cvp_ntp
+        hostname = module.cvp_cluster.node_ips[0].private_dns
       }
     }
   ]) : ([
@@ -301,6 +303,7 @@ locals {
       }
       config = {
         ntp = var.cvp_ntp
+        hostname = module.cvp_cluster.node_ips[0].private_dns
       }
     },
     {
@@ -333,6 +336,7 @@ locals {
       }
       config = {
         ntp = var.cvp_ntp
+        hostname = module.cvp_cluster.node_ips[1].private_dns
       }
     },
     {
@@ -365,6 +369,7 @@ locals {
       }
       config = {
         ntp = var.cvp_ntp
+        hostname = module.cvp_cluster.node_ips[2].private_dns
       }
     }
   ])
