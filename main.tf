@@ -375,8 +375,7 @@ locals {
   ])
 }
 module "cvp_provision_nodes" {
-  #source = "git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git"
-  source = "../cvp-ansible-provisioning"
+  source = "git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git"
 
   cloud_provider                    = "aws"
   nodes                             = module.cvp_cluster.nodes
