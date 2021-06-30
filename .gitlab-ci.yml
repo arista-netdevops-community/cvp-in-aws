@@ -24,9 +24,17 @@ use github module URLs:
   script:
     - sed -i 's_https://gitlab.aristanetworks.com/tac-team/_https://github.com/arista-netdevops-community/_g' main.tf
     - sed -i 's_https://gitlab.aristanetworks.com/tac-team/_https://github.com/arista-netdevops-community/_g' README.md
-    - sed -i "s/DEVELOPMENT_RELEASE/$CI_COMMIT_SHORT_SHA/g" main.tf
+    - sed -i 's/"gitlab"/"github"/g' main.tf
+    - sed -i "s/development_release/$CI_COMMIT_SHORT_SHA/gi" main.tf
   rules:
     - if: $CI_COMMIT_BRANCH == "github"
+
+generate documentation:
+  stage: build
+  image: golang:1.16
+  script:
+    - GO111MODULE="on" go get github.com/terraform-docs/terraform-docs@v0.14.1
+    - terraform-docs markdown --output-file README.md .
 
 check for sensitive variables:
   stage: test
