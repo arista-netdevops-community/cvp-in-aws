@@ -268,11 +268,11 @@ locals {
         }
       }
       config = {
-        ntp = var.cvp_ntp
+        ntp      = var.cvp_ntp
         hostname = module.cvp_cluster.node_ips[0].private_dns
       }
     }
-  ]) : ([
+    ]) : ([
     {
       ssh       = local.vm_commons.ssh
       bootstrap = local.vm_commons.bootstrap
@@ -302,7 +302,7 @@ locals {
         }
       }
       config = {
-        ntp = var.cvp_ntp
+        ntp      = var.cvp_ntp
         hostname = module.cvp_cluster.node_ips[0].private_dns
       }
     },
@@ -335,7 +335,7 @@ locals {
         }
       }
       config = {
-        ntp = var.cvp_ntp
+        ntp      = var.cvp_ntp
         hostname = module.cvp_cluster.node_ips[1].private_dns
       }
     },
@@ -368,7 +368,7 @@ locals {
         }
       }
       config = {
-        ntp = var.cvp_ntp
+        ntp      = var.cvp_ntp
         hostname = module.cvp_cluster.node_ips[2].private_dns
       }
     }
