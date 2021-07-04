@@ -72,7 +72,11 @@ generate documentation:
 
 launch single-node cluster:
   stage: test
-  image: $TERRAFORM_TEST_IMAGE
+  image:
+    name: $TERRAFORM_TEST_IMAGE
+    entrypoint:
+      - /bin/bash
+      - -c
   environment: cvp-tests
   variables:
     VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
