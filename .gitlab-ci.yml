@@ -85,7 +85,11 @@ launch single-node cluster:
 
 launch multi-node cluster:
   stage: test
-  image: $TERRAFORM_TEST_IMAGE
+  image: 
+    name: $TERRAFORM_TEST_IMAGE
+    entrypoint:
+      - /bin/sh
+      - -c
   environment: cvp-tests
   variables:
     VAR_FILE: "examples/multi-node-cvp-deployment.tfvars"
