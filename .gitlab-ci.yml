@@ -5,6 +5,7 @@
   - curl -s https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o /tmp/terraform.zip
   - unzip /tmp/terraform.zip -d /usr/bin/
 .install_yum_packages: &install_yum_packages
+  - amazon-linux-extras install epel
   - yum -y install git nmap-ncat unzip ansible jq
 .install_apt_packages: &install_apt_packages
   - apt-get update
