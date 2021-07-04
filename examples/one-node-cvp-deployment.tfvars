@@ -1,6 +1,6 @@
 aws_region                           = "us-east-2"
 aws_zone                             = "c"
-aws_profile                          = "cvp"
+aws_profile                          = "cvp-profile"
 aws_start_instances                  = true
 cvp_cluster_name                     = "my-cvp-cluster"
 cvp_cluster_size                     = "1"
