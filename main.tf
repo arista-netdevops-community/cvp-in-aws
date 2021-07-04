@@ -191,6 +191,23 @@ resource "aws_route_table_association" "vpc_network" {
   route_table_id = aws_route_table.vpc_network[0].id
 }
 
+resource "random_id" "prefix" {
+  byte_length = 8
+}
+resource "tls_private_key" "ssh" {
+  algorithm = "RSA"
+}
+resource "local_file" "ssh_public_key" {
+  filename        = "${path.module}/dynamic/${random_id.prefix.hex}-id_rsa.pub"
+  content         = tls_private_key.ssh.public_key_openssh
+  file_permission = "0644"
+}
+resource "local_file" "ssh_private_key" {
+  filename        = "${path.module}/dynamic/${random_id.prefix.hex}-id_rsa.pem"
+  content         = tls_private_key.ssh.private_key_pem
+  file_permission = "0600"
+}
+
 # TODO: Support instances in multiple zones
 module "cvp_cluster" {
   source = "./modules/cvp-cluster"
@@ -205,7 +222,7 @@ module "cvp_cluster" {
   eos_ip_range                     = var.eos_ip_range
   vm_type                          = var.cvp_cluster_vm_type
   vm_image                         = local.cvp_cluster.vm_image.location
-  vm_ssh_key                       = fileexists(var.cvp_cluster_vm_key) == true ? "${split(" ", file(var.cvp_cluster_vm_key))[0]} ${split(" ", file(var.cvp_cluster_vm_key))[1]}" : null
+  vm_ssh_key                       = fileexists(var.cvp_cluster_vm_key) == true ? "${split(" ", file(var.cvp_cluster_vm_key))[0]} ${split(" ", file(var.cvp_cluster_vm_key))[1]}" : "${split(" ", file(abspath(local_file.ssh_public_key.filename)))[0]} ${split(" ", file(abspath(local_file.ssh_public_key.filename)))[1]}"
   vm_admin_user                    = var.cvp_cluster_vm_admin_user
   vm_remove_data_disk              = var.cvp_cluster_remove_disks
 
@@ -228,10 +245,10 @@ locals {
   vm_commons = {
     ssh = {
       username         = var.cvp_cluster_vm_admin_user
-      private_key      = var.cvp_cluster_vm_private_key != null ? (fileexists(var.cvp_cluster_vm_private_key) == true ? file(var.cvp_cluster_vm_private_key) : null) : null
-      private_key_path = var.cvp_cluster_vm_private_key != null ? (fileexists(var.cvp_cluster_vm_private_key) == true ? var.cvp_cluster_vm_private_key : null) : null
-      public_key       = var.cvp_cluster_vm_key != null ? (fileexists(var.cvp_cluster_vm_key) == true ? file(var.cvp_cluster_vm_key) : null) : null
-      public_key_path  = var.cvp_cluster_vm_key != null ? (fileexists(var.cvp_cluster_vm_key) == true ? var.cvp_cluster_vm_key : null) : null
+      private_key      = var.cvp_cluster_vm_private_key != null ? (fileexists(var.cvp_cluster_vm_private_key) == true ? file(var.cvp_cluster_vm_private_key) : file(local_file.ssh_private_key.filename)) : file(local_file.ssh_private_key.filename)
+      private_key_path = var.cvp_cluster_vm_private_key != null ? (fileexists(var.cvp_cluster_vm_private_key) == true ? var.cvp_cluster_vm_private_key : abspath(local_file.ssh_private_key.filename)) : abspath(local_file.ssh_private_key.filename)
+      public_key       = var.cvp_cluster_vm_key != null ? (fileexists(var.cvp_cluster_vm_key) == true ? file(var.cvp_cluster_vm_key) : file(local_file.ssh_public_key.filename)) : file(local_file.ssh_public_key.filename)
+      public_key_path  = var.cvp_cluster_vm_key != null ? (fileexists(var.cvp_cluster_vm_key) == true ? var.cvp_cluster_vm_key : abspath(local_file.ssh_public_key.filename)) : abspath(local_file.ssh_public_key.filename)
     }
     bootstrap = {
       username = "root"
