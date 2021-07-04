@@ -89,6 +89,7 @@ launch multi-node cluster:
     name: $TERRAFORM_TEST_IMAGE
     entrypoint:
       - /bin/bash
+      - -c
   environment: cvp-tests
   variables:
     VAR_FILE: "examples/multi-node-cvp-deployment.tfvars"
