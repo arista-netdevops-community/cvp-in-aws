@@ -27,7 +27,7 @@ resource "random_string" "cvp_ingest_key" {
 locals {
   cli = {
     aws = {
-      command = var.aws_profile == null ? "aws" : "aws --profile ${var.aws_profile}"
+      command = var.aws_profile == null ? "aws --region ${var.aws_region}" : "aws --region ${var.aws_region} --profile ${var.aws_profile}"
     }
   }
   instance = {
