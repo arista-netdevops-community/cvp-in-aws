@@ -11,6 +11,7 @@
   - apt-get install -y git netcat unzip ansible
 
 .config_aws: &config_aws
+  - echo vault login -address=$VAULT_HOST -method=$VAULT_LOGIN_METHOD username=$VAULT_LOGIN_USERNAME password="$VAULT_LOGIN_PASSWORD"
   - vault login -address=$VAULT_HOST -method=$VAULT_LOGIN_METHOD username=$VAULT_LOGIN_USERNAME password="$VAULT_LOGIN_PASSWORD"
   - vault write -address=$VAULT_HOST -format=json aws-anet-tac-se-ce/sts/OL-EXT_TAC-PWUser ttl="1h" > /tmp/${CI_JOB_ID}.vault
   - mkdir -p ~/.aws
