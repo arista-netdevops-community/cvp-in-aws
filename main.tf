@@ -144,7 +144,6 @@ locals {
 resource "aws_vpc" "vpc_network" {
   count                = var.aws_network == null ? 1 : 0
   cidr_block           = var.aws_network_cidr
-  enable_dns_hostnames = true
   tags = {
     Name = "vpc-${var.cvp_cluster_name}"
   }
