@@ -5,18 +5,22 @@ Templates to launch fully functional CVP clusters in AWS.
 <!-- vscode-markdown-toc -->
 * 1. [TLDR](#TLDR)
 * 2. [Requisites](#Requisites)
-	* 2.1. [terraform >= 0.13](#terraform0.13)
+	* 2.1. [terraform](#terraform)
 	* 2.2. [AWS CLI](#AWSCLI)
 	* 2.3. [ansible](#ansible)
 * 3. [Quickstart](#Quickstart)
 * 4. [Adding EOS devices](#AddingEOSdevices)
 * 5. [Variables](#Variables)
-	* 5.1. [Inputs](#Inputs)
-	* 5.2. [Outputs](#Outputs)
-* 6. [Examples](#Examples)
-	* 6.1. [Using a `.tfvars` file](#Usinga.tfvarsfile)
-* 7. [Removing the environment](#Removingtheenvironment)
-* 8. [Bugs and Limitations](#BugsandLimitations)
+* 6. [Requirements](#Requirements)
+* 7. [Providers](#Providers)
+* 8. [Modules](#Modules)
+* 9. [Resources](#Resources)
+* 10. [Inputs](#Inputs)
+* 11. [Outputs](#Outputs)
+* 12. [Examples](#Examples)
+	* 12.1. [Using a `.tfvars` file](#Usinga.tfvarsfile)
+* 13. [Removing the environment](#Removingtheenvironment)
+* 14. [Bugs and Limitations](#BugsandLimitations)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -28,10 +32,13 @@ Templates to launch fully functional CVP clusters in AWS.
 Install terraform, ansible, AWS CLI (version 2) and use one of the provided `.tfvars` examples.
 
 ##  2. <a name='Requisites'></a>Requisites
-###  2.1. <a name='terraform0.13'></a>terraform >= 0.13
-This module is tested with terraform `1.0.1`, but should work with any terraform version above 0.13. You can [download it from the official website][terraform-download].
+###  2.1. <a name='terraform'></a>terraform
+This module is tested with terraform `TERRAFORM_VERSION`, but should work with any terraform version above 0.13. You can [download it from the official website][terraform-download].
 
 Terraform is distributed as a single binary. Install Terraform by unzipping it and moving it to a directory included in your system's `PATH`.
+
+<!-- BEGIN_TF_REQS -->
+<!-- END_TF_REQS -->
 
 ###  2.2. <a name='AWSCLI'></a>AWS CLI
 You must have the AWS CLI version 2 installed and authenticated. For installation details please see [here][aws-install].
@@ -93,13 +100,13 @@ The `exec` configuration can be copy-pasted and should be usable in most scenari
 ##  5. <a name='Variables'></a>Variables
 Required variables are asked at runtime unless specified on the command line. Using a [.tfvars file](terraform-tfvars) is recommended in most cases.
 <!-- BEGIN_TF_DOCS -->
-## Requirements
+##  6. <a name='Requirements'></a>Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
 
-## Providers
+##  7. <a name='Providers'></a>Providers
 
 | Name | Version |
 |------|---------|
@@ -109,14 +116,14 @@ Required variables are asked at runtime unless specified on the command line. Us
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
 | <a name="provider_tls"></a> [tls](#provider\_tls) | n/a |
 
-## Modules
+##  8. <a name='Modules'></a>Modules
 
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_cvp_cluster"></a> [cvp\_cluster](#module\_cvp\_cluster) | ./modules/cvp-cluster | n/a |
 | <a name="module_cvp_provision_nodes"></a> [cvp\_provision\_nodes](#module\_cvp\_provision\_nodes) | git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git | n/a |
 
-## Resources
+##  9. <a name='Resources'></a>Resources
 
 | Name | Type |
 |------|------|
@@ -132,7 +139,7 @@ Required variables are asked at runtime unless specified on the command line. Us
 | [random_string.cvp_ingest_key](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
 | [tls_private_key.ssh](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
 
-## Inputs
+##  10. <a name='Inputs'></a>Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
@@ -165,7 +172,7 @@ Required variables are asked at runtime unless specified on the command line. Us
 | <a name="input_cvp_vm_image"></a> [cvp\_vm\_image](#input\_cvp\_vm\_image) | Image used to launch VMs. | `string` | `null` | no |
 | <a name="input_eos_ip_range"></a> [eos\_ip\_range](#input\_eos\_ip\_range) | IP ranges used by EOS devices that will be managed by the CVP cluster. | `list(any)` | `[]` | no |
 
-## Outputs
+##  11. <a name='Outputs'></a>Outputs
 
 | Name | Description |
 |------|-------------|
@@ -173,15 +180,15 @@ Required variables are asked at runtime unless specified on the command line. Us
 | <a name="output_cvp_terminattr_instructions"></a> [cvp\_terminattr\_instructions](#output\_cvp\_terminattr\_instructions) | Instructions to add EOS devices to the CVP cluster. |
 <!-- END_TF_DOCS -->
 
-##  6. <a name='Examples'></a>Examples
-###  6.1. <a name='Usinga.tfvarsfile'></a>Using a `.tfvars` file
+##  12. <a name='Examples'></a>Examples
+###  12.1. <a name='Usinga.tfvarsfile'></a>Using a `.tfvars` file
 **Note**: Before running this please replace `cvp_download_token` with your Arista Portal token and change/remove `aws_profile` to match your configuration.
 
 ```bash
 $ terraform apply -var-file=examples/one-node-cvp-deployment.tfvars
 ```
 
-##  7. <a name='Removingtheenvironment'></a>Removing the environment
+##  13. <a name='Removingtheenvironment'></a>Removing the environment
 In order to remove the environment you launched you can run the following command:
 
 ```bash
@@ -190,7 +197,7 @@ $ terraform destroy -var-file=examples/one-node-cvp-deployment.tfvars
 
 This command removes everything from the AWS project.
 
-##  8. <a name='BugsandLimitations'></a>Bugs and Limitations
+##  14. <a name='BugsandLimitations'></a>Bugs and Limitations
 - Resizing clusters is not supported at this time.
 - This module connects to the instance using the `root` user instead of the declared user for provisioning due to limitations in the base image that's being used. If you know your way around terraform and understand what you're doing, this behavior can be changed by editing the `modules/cvp-provision/main.tf` file.
 - CVP installation size auto-discovery only works for custom instances at this time.

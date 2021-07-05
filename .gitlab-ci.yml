@@ -63,9 +63,11 @@ generate documentation:
   stage: document
   image: golang:1.16
   script:
+    - sed -i "s/tested with terraform \`.*\`,/tested with terraform \`$TERRAFORM_VERSION\`,/g" README.md
     - GO111MODULE="on" go get github.com/terraform-docs/terraform-docs@v0.14.1
     - terraform-docs pretty .
     - terraform-docs markdown --output-file README.md .
+    - test -f .terraform-docs-reqs.yml && terraform-docs --config .terraform-docs-reqs.yml markdown --output-file README.md .
   artifacts:
     paths:
       - README.md
