@@ -33,11 +33,33 @@ Install terraform, ansible, AWS CLI (version 2) and use one of the provided `.tf
 
 ##  2. <a name='Requisites'></a>Requisites
 ###  2.1. <a name='terraform'></a>terraform
-This module is tested with terraform `TERRAFORM_VERSION`, but should work with any terraform version above 0.13. You can [download it from the official website][terraform-download].
+This module is tested with terraform ``, but should work with any terraform version above 0.13. You can [download it from the official website][terraform-download].
 
 Terraform is distributed as a single binary. Install Terraform by unzipping it and moving it to a directory included in your system's `PATH`.
 
 <!-- BEGIN_TF_REQS -->
+#### Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
+
+#### Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_local"></a> [local](#provider\_local) | n/a |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
+| <a name="provider_random"></a> [random](#provider\_random) | n/a |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | n/a |
+
+#### Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_cvp_cluster"></a> [cvp\_cluster](#module\_cvp\_cluster) | ./modules/cvp-cluster | n/a |
+| <a name="module_cvp_provision_nodes"></a> [cvp\_provision\_nodes](#module\_cvp\_provision\_nodes) | git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git | n/a |
 <!-- END_TF_REQS -->
 
 ###  2.2. <a name='AWSCLI'></a>AWS CLI
@@ -100,46 +122,7 @@ The `exec` configuration can be copy-pasted and should be usable in most scenari
 ##  5. <a name='Variables'></a>Variables
 Required variables are asked at runtime unless specified on the command line. Using a [.tfvars file](terraform-tfvars) is recommended in most cases.
 <!-- BEGIN_TF_DOCS -->
-##  6. <a name='Requirements'></a>Requirements
-
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
-
-##  7. <a name='Providers'></a>Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
-| <a name="provider_local"></a> [local](#provider\_local) | n/a |
-| <a name="provider_null"></a> [null](#provider\_null) | n/a |
-| <a name="provider_random"></a> [random](#provider\_random) | n/a |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | n/a |
-
-##  8. <a name='Modules'></a>Modules
-
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_cvp_cluster"></a> [cvp\_cluster](#module\_cvp\_cluster) | ./modules/cvp-cluster | n/a |
-| <a name="module_cvp_provision_nodes"></a> [cvp\_provision\_nodes](#module\_cvp\_provision\_nodes) | git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git | n/a |
-
-##  9. <a name='Resources'></a>Resources
-
-| Name | Type |
-|------|------|
-| [aws_internet_gateway.vpc_network](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway) | resource |
-| [aws_route_table.vpc_network](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
-| [aws_route_table_association.vpc_network](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
-| [aws_subnet.vpc_network](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
-| [aws_vpc.vpc_network](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) | resource |
-| [local_file.ssh_private_key](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
-| [local_file.ssh_public_key](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
-| [null_resource.start_instances](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
-| [random_id.prefix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
-| [random_string.cvp_ingest_key](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
-| [tls_private_key.ssh](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
-
-##  10. <a name='Inputs'></a>Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
@@ -172,7 +155,7 @@ Required variables are asked at runtime unless specified on the command line. Us
 | <a name="input_cvp_vm_image"></a> [cvp\_vm\_image](#input\_cvp\_vm\_image) | Image used to launch VMs. | `string` | `null` | no |
 | <a name="input_eos_ip_range"></a> [eos\_ip\_range](#input\_eos\_ip\_range) | IP ranges used by EOS devices that will be managed by the CVP cluster. | `list(any)` | `[]` | no |
 
-##  11. <a name='Outputs'></a>Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|
