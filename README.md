@@ -93,36 +93,79 @@ The `exec` configuration can be copy-pasted and should be usable in most scenari
 ##  5. <a name='Variables'></a>Variables
 Required variables are asked at runtime unless specified on the command line. Using a [.tfvars file](terraform-tfvars) is recommended in most cases.
 <!-- BEGIN_TF_DOCS -->
-###  5.1. <a name='Inputs'></a>Inputs
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_local"></a> [local](#provider\_local) | n/a |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
+| <a name="provider_random"></a> [random](#provider\_random) | n/a |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | n/a |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_cvp_cluster"></a> [cvp\_cluster](#module\_cvp\_cluster) | ./modules/cvp-cluster | n/a |
+| <a name="module_cvp_provision_nodes"></a> [cvp\_provision\_nodes](#module\_cvp\_provision\_nodes) | git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_internet_gateway.vpc_network](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway) | resource |
+| [aws_route_table.vpc_network](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table_association.vpc_network](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_subnet.vpc_network](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
+| [aws_vpc.vpc_network](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) | resource |
+| [local_file.ssh_private_key](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
+| [local_file.ssh_public_key](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
+| [null_resource.start_instances](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [random_id.prefix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
+| [random_string.cvp_ingest_key](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
+| [tls_private_key.ssh](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
+
+## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_cvp_cluster_centos_version"></a> [cvp\_cluster\_centos\_version](#input\_cvp\_cluster\_centos\_version) | The Centos version used by CVP instances. If not provided we'll try to choose the appropriate one based on the CVP version that's being installed. | `string` | `null` | no |
-| <a name="input_cvp_cluster_name"></a> [cvp\_cluster\_name](#input\_cvp\_cluster\_name) | The name of the CVP cluster. | `string` | n/a | yes |
-| <a name="input_cvp_cluster_public_eos_communication"></a> [cvp\_cluster\_public\_eos\_communication](#input\_cvp\_cluster\_public\_eos\_communication) | Whether the ports used by EOS devices to communicate to CVP are publically accessible over the internet. | `bool` | `false` | no |
-| <a name="input_cvp_cluster_public_management"></a> [cvp\_cluster\_public\_management](#input\_cvp\_cluster\_public\_management) | Whether the cluster management interfaces (https/ssh) are publically accessible over the internet. | `bool` | `false` | no |
-| <a name="input_cvp_cluster_size"></a> [cvp\_cluster\_size](#input\_cvp\_cluster\_size) | The number of nodes in the CVP cluster. Must be 1 or 3 nodes. | `number` | `1` | no |
-| <a name="input_cvp_cluster_vm_admin_user"></a> [cvp\_cluster\_vm\_admin\_user](#input\_cvp\_cluster\_vm\_admin\_user) | User that will be used to connect to CVP cluster instances. Should be used in conjunction with cvp\_cluster\_vm\_key. | `string` | `"cvpsshadmin"` | no |
-| <a name="input_cvp_cluster_vm_key"></a> [cvp\_cluster\_vm\_key](#input\_cvp\_cluster\_vm\_key) | Public SSH key used to access instances in the CVP cluster. | `string` | `"~/.ssh/id_rsa.pub"` | no |
+| <a name="input_aws_network"></a> [aws\_network](#input\_aws\_network) | The ID of the network in which clusters will be launched. Leaving this blank will create a new network. | `string` | `null` | no |
+| <a name="input_aws_network_cidr"></a> [aws\_network\_cidr](#input\_aws\_network\_cidr) | CIDR for the AWS VPC that's created by the module. Only used when aws\_network is NOT set. | `string` | `"10.128.0.0/20"` | no |
+| <a name="input_aws_profile"></a> [aws\_profile](#input\_aws\_profile) | AWS CLI profile. Must match a valid profile in your ~/.aws/config and ~/.aws/credentials. | `string` | `null` | no |
+| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | The region in which all AWS resources will be launched. | `string` | n/a | yes |
+| <a name="input_aws_start_instances"></a> [aws\_start\_instances](#input\_aws\_start\_instances) | Whether to start CVP instances when running terraform. | `bool` | `false` | no |
+| <a name="input_aws_subnet"></a> [aws\_subnet](#input\_aws\_subnet) | The ID of the subnet in which clusters will be launched. Only used when aws\_network is set. | `string` | `null` | no |
+| <a name="input_aws_subnet_cidr"></a> [aws\_subnet\_cidr](#input\_aws\_subnet\_cidr) | The subnetwork CIDR in which clusters will be launched. Only used when aws\_network is NOT set. | `string` | `"10.128.0.0/20"` | no |
+| <a name="input_aws_zone"></a> [aws\_zone](#input\_aws\_zone) | The zone in which all GCP resources will be launched. | `string` | n/a | yes |
+| <a name="input_cvp_cluster_centos_version"></a> [cvp\_cluster\_centos\_version](#input\_cvp\_cluster\_centos\_version) | The Centos version used by CVP instances. | `string` | `null` | no |
+| <a name="input_cvp_cluster_name"></a> [cvp\_cluster\_name](#input\_cvp\_cluster\_name) | The name of the CVP cluster | `string` | n/a | yes |
+| <a name="input_cvp_cluster_public_eos_communitation"></a> [cvp\_cluster\_public\_eos\_communitation](#input\_cvp\_cluster\_public\_eos\_communitation) | Whether the ports used by EOS devices to communicate to CVP are publically accessible over the internet. | `bool` | `false` | no |
+| <a name="input_cvp_cluster_public_management"></a> [cvp\_cluster\_public\_management](#input\_cvp\_cluster\_public\_management) | Whether the cluster management interface (https/ssh) is publically accessible over the internet. | `bool` | `false` | no |
+| <a name="input_cvp_cluster_remove_disks"></a> [cvp\_cluster\_remove\_disks](#input\_cvp\_cluster\_remove\_disks) | Whether data disks created for the instances will be removed when destroying them. | `bool` | `false` | no |
+| <a name="input_cvp_cluster_size"></a> [cvp\_cluster\_size](#input\_cvp\_cluster\_size) | The number of nodes in the CVP cluster | `number` | n/a | yes |
+| <a name="input_cvp_cluster_vm_admin_user"></a> [cvp\_cluster\_vm\_admin\_user](#input\_cvp\_cluster\_vm\_admin\_user) | User that will be used to connect to CVP cluster instances. | `string` | `"cvpsshadmin"` | no |
+| <a name="input_cvp_cluster_vm_key"></a> [cvp\_cluster\_vm\_key](#input\_cvp\_cluster\_vm\_key) | Public SSH key used to access instances in the CVP cluster. | `string` | `null` | no |
 | <a name="input_cvp_cluster_vm_password"></a> [cvp\_cluster\_vm\_password](#input\_cvp\_cluster\_vm\_password) | Password used to access instances in the CVP cluster. | `string` | `null` | no |
-| <a name="input_cvp_cluster_vm_private_key"></a> [cvp\_cluster\_vm\_private\_key](#input\_cvp\_cluster\_vm\_private\_key) | Private SSH key used to access instances in the CVP cluster. This should match the public key provided on the cvp\_cluster\_vm\_key variable. | `string` | `"~/.ssh/id_rsa"` | no |
-| <a name="input_cvp_cluster_vm_type"></a> [cvp\_cluster\_vm\_type](#input\_cvp\_cluster\_vm\_type) | The type of instances used for CVP. | `string` | `"custom-10-20480"` | no |
-| <a name="input_cvp_download_token"></a> [cvp\_download\_token](#input\_cvp\_download\_token) | Arista Portal token used to download CVP. May be obtained on https://www.arista.com/en/users/profile under Portal Access. | `string` | n/a | yes |
+| <a name="input_cvp_cluster_vm_private_key"></a> [cvp\_cluster\_vm\_private\_key](#input\_cvp\_cluster\_vm\_private\_key) | Private SSH key used to access instances in the CVP cluster. | `string` | `null` | no |
+| <a name="input_cvp_cluster_vm_type"></a> [cvp\_cluster\_vm\_type](#input\_cvp\_cluster\_vm\_type) | The type of instances used for CVP | `string` | `"c5.4xlarge"` | no |
+| <a name="input_cvp_download_token"></a> [cvp\_download\_token](#input\_cvp\_download\_token) | Arista Portal token used to download CVP. | `string` | n/a | yes |
 | <a name="input_cvp_enable_advanced_login_options"></a> [cvp\_enable\_advanced\_login\_options](#input\_cvp\_enable\_advanced\_login\_options) | Whether to enable advanced login options on CVP. | `bool` | `false` | no |
 | <a name="input_cvp_ingest_key"></a> [cvp\_ingest\_key](#input\_cvp\_ingest\_key) | Key that will be used to authenticate devices to CVP. | `string` | `null` | no |
 | <a name="input_cvp_install_size"></a> [cvp\_install\_size](#input\_cvp\_install\_size) | CVP installation size. | `string` | `null` | no |
 | <a name="input_cvp_k8s_cluster_network"></a> [cvp\_k8s\_cluster\_network](#input\_cvp\_k8s\_cluster\_network) | Internal network that will be used inside the k8s cluster. Applies only to 2021.1.0+. | `string` | `"10.42.0.0/16"` | no |
 | <a name="input_cvp_ntp"></a> [cvp\_ntp](#input\_cvp\_ntp) | NTP server used to keep time synchronization between CVP nodes. | `string` | `"time.google.com"` | no |
-| <a name="input_cvp_version"></a> [cvp\_version](#input\_cvp\_version) | CVP version to install on the cluster. | `string` | `"2021.1.1"` | no |
-| <a name="input_cvp_vm_image"></a> [cvp\_vm\_image](#input\_cvp\_vm\_image) | Image used to launch VMs. The module will try to guess the best image based on the CVP version if not provided. | `string` | `null` | no |
-| <a name="input_eos_ip_range"></a> [eos\_ip\_range](#input\_eos\_ip\_range) | IP ranges used by EOS devices that will be managed by the CVP cluster. Should be set when cvp\_cluster\_public\_eos\_communication is set to false, otherwise, devices won't be able to communicate and stream to CVP. | `list(any)` | `[]` | no |
-| <a name="input_gcp_credentials"></a> [gcp\_credentials](#input\_gcp\_credentials) | JSON file containing GCP credentials. Leave blank to use gcloud authentication. | `string` | `null` | no |
-| <a name="input_gcp_network"></a> [gcp\_network](#input\_gcp\_network) | The network in which clusters will be launched. Leaving this blank will create a new network. | `string` | `null` | no |
-| <a name="input_gcp_project_id"></a> [gcp\_project\_id](#input\_gcp\_project\_id) | The name of the GCP Project where all resources will be launched. | `string` | n/a | yes |
-| <a name="input_gcp_region"></a> [gcp\_region](#input\_gcp\_region) | The region in which all GCP resources will be launched. Must be a valid zone within the desired gcp\_region. | `string` | n/a | yes |
-| <a name="input_gcp_zone"></a> [gcp\_zone](#input\_gcp\_zone) | The zone in which all GCP resources will be launched. | `string` | n/a | yes |
+| <a name="input_cvp_version"></a> [cvp\_version](#input\_cvp\_version) | CVP version to install on the cluster. | `string` | `"2020.3.1"` | no |
+| <a name="input_cvp_vm_image"></a> [cvp\_vm\_image](#input\_cvp\_vm\_image) | Image used to launch VMs. | `string` | `null` | no |
+| <a name="input_eos_ip_range"></a> [eos\_ip\_range](#input\_eos\_ip\_range) | IP ranges used by EOS devices that will be managed by the CVP cluster. | `list(any)` | `[]` | no |
 
-###  5.2. <a name='Outputs'></a>Outputs
+## Outputs
 
 | Name | Description |
 |------|-------------|
