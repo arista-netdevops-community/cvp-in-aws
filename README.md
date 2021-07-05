@@ -37,13 +37,13 @@ This module is tested with terraform `1.0.1`, but should work with any terraform
 Terraform is distributed as a single binary. Install Terraform by unzipping it and moving it to a directory included in your system's `PATH`.
 
 <!-- BEGIN_TF_REQS -->
-####  2.1.1. <a name='Requirements'></a>Requirements
+#### Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14 |
 
-####  2.1.2. <a name='Providers'></a>Providers
+#### Providers
 
 | Name | Version |
 |------|---------|
@@ -53,7 +53,7 @@ Terraform is distributed as a single binary. Install Terraform by unzipping it a
 | <a name="provider_random"></a> [random](#provider\_random) | 3.1.0 |
 | <a name="provider_tls"></a> [tls](#provider\_tls) | 3.1.0 |
 
-####  2.1.3. <a name='Modules'></a>Modules
+#### Modules
 
 | Name | Source | Version |
 |------|--------|---------|
@@ -121,7 +121,7 @@ The `exec` configuration can be copy-pasted and should be usable in most scenari
 ##  5. <a name='Variables'></a>Variables
 Required variables are asked at runtime unless specified on the command line. Using a [.tfvars file](terraform-tfvars) is recommended in most cases.
 <!-- BEGIN_TF_DOCS -->
-###  5.1. <a name='Inputs'></a>Inputs
+### Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
@@ -154,7 +154,7 @@ Required variables are asked at runtime unless specified on the command line. Us
 | <a name="input_cvp_vm_image"></a> [cvp\_vm\_image](#input\_cvp\_vm\_image) | Image used to launch VMs. | `string` | `null` | no |
 | <a name="input_eos_ip_range"></a> [eos\_ip\_range](#input\_eos\_ip\_range) | IP ranges used by EOS devices that will be managed by the CVP cluster. | `list(any)` | `[]` | no |
 
-###  5.2. <a name='Outputs'></a>Outputs
+### Outputs
 
 | Name | Description |
 |------|-------------|
