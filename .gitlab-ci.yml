@@ -12,11 +12,10 @@
   - apt-get install -y git netcat unzip ansible
 
 .config_aws: &config_aws
-  - echo vault login -address=$VAULT_HOST -method=$VAULT_LOGIN_METHOD username=$VAULT_LOGIN_USERNAME password="$VAULT_LOGIN_PASSWORD"
   - vault login -address=$VAULT_HOST -method=$VAULT_LOGIN_METHOD username=$VAULT_LOGIN_USERNAME password="$VAULT_LOGIN_PASSWORD"
   - vault write -address=$VAULT_HOST -format=json aws-anet-tac-se-ce/sts/OL-EXT_TAC-PWUser ttl="1h" > /tmp/${CI_JOB_ID}.vault
   - mkdir -p ~/.aws
-  - echo -e "[cvp-profile]\nregion = us-east-2" > ~/.aws/config
+  - echo -e "[profile cvp-profile]\nregion = us-east-2" > ~/.aws/config
   - echo -e "[cvp-profile]\naws_access_key_id=$(jq -r .data.access_key < /tmp/${CI_JOB_ID}.vault)\naws_secret_access_key=$(jq -r .data.secret_key < /tmp/${CI_JOB_ID}.vault)\naws_session_token=$(jq -r .data.security_token < /tmp/${CI_JOB_ID}.vault)" > ~/.aws/credentials
 .config_git: &config_git
   - git config --global credential.helper store
