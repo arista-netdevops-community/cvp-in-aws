@@ -127,7 +127,6 @@ validate target terraform:
   <<: *before_terraform
   script:
     - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE
-  allow_failure: true
 
 launch single-node cluster:
   stage: test
