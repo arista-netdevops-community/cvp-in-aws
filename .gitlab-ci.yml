@@ -2,8 +2,11 @@
   - curl -s https://releases.hashicorp.com/vault/1.7.3/vault_1.7.3_linux_amd64.zip -o /tmp/vault.zip
   - unzip /tmp/vault.zip -d /usr/bin
 .install_terraform: &install_terraform
-  - curl -s https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o /tmp/terraform.zip
-  - unzip /tmp/terraform.zip -d /usr/bin/
+  - curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/release/install.sh | bash
+  - |
+    TERRAFORM_VERSION_DOTS=$(echo ${TERRAFORM_VERSION}|awk -F. '{print NF-1}');
+    if [ $TERRAFORM_VERSION_DOTS == 1 ]; then SWITCH_OPTS="-s"; fi;
+    tfswitch $SWITCH_OPTS ${TERRAFORM_VERSION}
 .install_yum_packages: &install_yum_packages
   - amazon-linux-extras install epel
   - yum -y install git nmap-ncat unzip ansible jq which
@@ -75,6 +78,42 @@ generate documentation:
       - README.md
       - .terraform.lock.hcl
     expire_in: 1 hour
+
+validate terraform 0.14:
+  stage: test
+  image:
+    name: $TERRAFORM_TEST_IMAGE
+    entrypoint:
+      - /bin/bash
+      - -c
+  environment: cvp-tests
+  variables:
+    VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
+    TERRAFORM_VERSION: "0.14"
+  before_script:
+    - *install_terraform
+    - terraform init
+  script:
+    - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
+  allow_failure: true
+
+validate terraform 0.15:
+  stage: test
+  image:
+    name: $TERRAFORM_TEST_IMAGE
+    entrypoint:
+      - /bin/bash
+      - -c
+  environment: cvp-tests
+  variables:
+    VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
+    TERRAFORM_VERSION: "0.15"
+  before_script:
+    - *install_terraform
+    - terraform init
+  script:
+    - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
+  allow_failure: true
 
 launch single-node cluster:
   stage: test
