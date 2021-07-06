@@ -31,6 +31,7 @@
     - sed -i "s/\(cvp_download_token.*=\) \"PLACE_YOUR_PORTAL_TOKEN_HERE\"/\1 \"$ARISTA_API_TOKEN\"/g" $VAR_FILE
     - terraform init
   script:
+    - sed "s/\(cvp_cluster_name.*=\) \".*\"/\1 \"cvp-ci-cluster-${CI_JOB_ID}\"/g" $VAR_FILE
     - terraform apply -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
     - terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve || terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
   after_script:
