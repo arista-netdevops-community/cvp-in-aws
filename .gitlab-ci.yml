@@ -91,6 +91,7 @@ validate terraform 0.14:
     VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
     TERRAFORM_VERSION: "0.14"
   before_script:
+    - *install_yum_packages
     - *install_terraform
     - terraform init
   script:
@@ -109,6 +110,7 @@ validate terraform 0.15:
     VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
     TERRAFORM_VERSION: "0.15"
   before_script:
+    - *install_yum_packages
     - *install_terraform
     - terraform init
   script:
