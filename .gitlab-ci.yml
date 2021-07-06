@@ -9,7 +9,7 @@
     tfswitch $SWITCH_OPTS ${TERRAFORM_VERSION}
 .install_yum_packages: &install_yum_packages
   - amazon-linux-extras install epel
-  - yum -y install git nmap-ncat unzip ansible jq which
+  - yum -y install git nmap-ncat unzip ansible jq which tar gzip
 .install_apt_packages: &install_apt_packages
   - apt-get update
   - apt-get install -y git netcat unzip ansible
