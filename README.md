@@ -75,6 +75,8 @@ Default region name [None]: us-east-2
 Default output format [None]:
 ```
 
+> *Note*: If you're [using temporary credentials to access AWS][aws-temp-credentials] (such as STS or keys from Vault) you'll also need to add your `aws_session_token` in the profile in `~/.aws/credentials`.
+
 ###  2.3. <a name='ansible'></a>ansible
 You must have ansible installed for provisioning to work. You can check installation instructions [here][ansible-install].
 
@@ -187,6 +189,7 @@ This command removes everything from the AWS project.
 
 [ansible-install]: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-the-ansible-community-package
 [aws-install]: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
+[aws-temp-credentials]: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_use-resources.html
 [gcloud-install]: https://cloud.google.com/sdk/docs/install
 [terraform-download]: https://www.terraform.io/downloads.html
 [terraform-tfvars]: https://www.terraform.io/docs/language/values/variables.html#variable-definitions-tfvars-files
