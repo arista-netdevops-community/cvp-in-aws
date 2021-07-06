@@ -95,7 +95,7 @@ validate terraform 0.14:
     TERRAFORM_VERSION: "0.14"
   <<: *before_terraform
   script:
-    - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
+    - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE
   allow_failure: true
 
 validate terraform 0.15:
@@ -111,7 +111,7 @@ validate terraform 0.15:
     TERRAFORM_VERSION: "0.15"
   <<: *before_terraform
   script:
-    - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
+    - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE
   allow_failure: true
 
 launch single-node cluster:
