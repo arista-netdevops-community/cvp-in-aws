@@ -83,7 +83,7 @@ generate documentation:
     expire_in: 1 hour
 
 validate terraform 0.14:
-  stage: test
+  stage: validate
   image:
     name: $TERRAFORM_TEST_IMAGE
     entrypoint:
@@ -99,7 +99,7 @@ validate terraform 0.14:
   allow_failure: true
 
 validate terraform 0.15:
-  stage: test
+  stage: validate
   image:
     name: $TERRAFORM_TEST_IMAGE
     entrypoint:
@@ -109,6 +109,21 @@ validate terraform 0.15:
   variables:
     VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
     TERRAFORM_VERSION: "0.15"
+  <<: *before_terraform
+  script:
+    - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE
+  allow_failure: true
+
+validate target terraform:
+  stage: validate
+  image:
+    name: $TERRAFORM_TEST_IMAGE
+    entrypoint:
+      - /bin/bash
+      - -c
+  environment: cvp-tests
+  variables:
+    VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
   <<: *before_terraform
   script:
     - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE
