@@ -67,7 +67,7 @@ variable "cvp_cluster_vm_type" {
   default     = "c5.4xlarge"
 }
 variable "cvp_download_token" {
-  description = "Arista Portal token used to download CVP."
+  description = "Arista Portal token used to download CVP. May be obtained on https://www.arista.com/en/users/profile under Portal Access."
   type        = string
 }
 variable "cvp_enable_advanced_login_options" {
