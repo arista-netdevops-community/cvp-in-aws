@@ -146,7 +146,7 @@ Required variables are asked at runtime unless specified on the command line. Us
 | <a name="input_cvp_cluster_vm_password"></a> [cvp\_cluster\_vm\_password](#input\_cvp\_cluster\_vm\_password) | Password used to access instances in the CVP cluster. | `string` | `null` | no |
 | <a name="input_cvp_cluster_vm_private_key"></a> [cvp\_cluster\_vm\_private\_key](#input\_cvp\_cluster\_vm\_private\_key) | Private SSH key used to access instances in the CVP cluster. | `string` | `null` | no |
 | <a name="input_cvp_cluster_vm_type"></a> [cvp\_cluster\_vm\_type](#input\_cvp\_cluster\_vm\_type) | The type of instances used for CVP | `string` | `"c5.4xlarge"` | no |
-| <a name="input_cvp_download_token"></a> [cvp\_download\_token](#input\_cvp\_download\_token) | Arista Portal token used to download CVP. | `string` | n/a | yes |
+| <a name="input_cvp_download_token"></a> [cvp\_download\_token](#input\_cvp\_download\_token) | Arista Portal token used to download CVP. May be obtained on https://www.arista.com/en/users/profile under Portal Access. | `string` | n/a | yes |
 | <a name="input_cvp_enable_advanced_login_options"></a> [cvp\_enable\_advanced\_login\_options](#input\_cvp\_enable\_advanced\_login\_options) | Whether to enable advanced login options on CVP. | `bool` | `false` | no |
 | <a name="input_cvp_ingest_key"></a> [cvp\_ingest\_key](#input\_cvp\_ingest\_key) | Key that will be used to authenticate devices to CVP. | `string` | `null` | no |
 | <a name="input_cvp_install_size"></a> [cvp\_install\_size](#input\_cvp\_install\_size) | CVP installation size. | `string` | `null` | no |
