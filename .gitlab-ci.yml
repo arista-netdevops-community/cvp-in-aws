@@ -24,7 +24,7 @@
   - git config --global credential.helper store
   - echo "https://gitlab-ci-token:${GITLAB_INTEGRATION_TOKEN}@gitlab.aristanetworks.com" > ~/.git-credentials
 
-.run_terraform: &run_terraform
+.before_terraform: &before_terraform
   before_script:
     - *install_yum_packages
     - *install_vault
@@ -33,6 +33,9 @@
     - *config_aws
     - sed -i "s/\(cvp_download_token.*=\) \"PLACE_YOUR_PORTAL_TOKEN_HERE\"/\1 \"$ARISTA_API_TOKEN\"/g" $VAR_FILE
     - terraform init
+
+.run_terraform: &run_terraform
+  <<: *before_terraform
   script:
     - sed -i "s/\(cvp_cluster_name.*=\) \".*\"/\1 \"cvp-ci-cluster-${CI_JOB_ID}\"/g" $VAR_FILE
     - terraform apply -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
@@ -90,10 +93,7 @@ validate terraform 0.14:
   variables:
     VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
     TERRAFORM_VERSION: "0.14"
-  before_script:
-    - *install_yum_packages
-    - *install_terraform
-    - terraform init
+  <<: *before_terraform
   script:
     - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
   allow_failure: true
@@ -109,10 +109,7 @@ validate terraform 0.15:
   variables:
     VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
     TERRAFORM_VERSION: "0.15"
-  before_script:
-    - *install_yum_packages
-    - *install_terraform
-    - terraform init
+  <<: *before_terraform
   script:
     - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
   allow_failure: true
