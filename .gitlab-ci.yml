@@ -39,9 +39,9 @@
   script:
     - sed -i "s/\(cvp_cluster_name.*=\) \".*\"/\1 \"cvp-ci-cluster-${CI_JOB_ID}\"/g" $VAR_FILE
     - terraform apply -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
-    - terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve || terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
+    - terraform refresh -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE && terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve || terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
   after_script:
-    - terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve || terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
+    - terraform refresh -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE && terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve || terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
 
 stages:
   - validate
