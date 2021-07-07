@@ -394,8 +394,6 @@ module "cvp_provision_nodes" {
   source = "git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git?ref=v3.0.1"
 
   cloud_provider                    = "aws"
-  nodes                             = module.cvp_cluster.nodes
-  subnets                           = module.cvp_cluster.subnets
   vm                                = length(local.vm) == 1 ? [local.vm[0]] : local.vm
   cvp_version                       = var.cvp_version
   cvp_download_token                = var.cvp_download_token
