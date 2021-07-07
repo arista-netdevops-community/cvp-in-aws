@@ -47,6 +47,7 @@ stages:
   - validate
   - build
   - test
+  - launch
   - document
   - deploy
 
@@ -83,7 +84,7 @@ generate documentation:
     expire_in: 1 hour
 
 validate terraform 0.14:
-  stage: validate
+  stage: test
   image:
     name: $TERRAFORM_TEST_IMAGE
     entrypoint:
@@ -99,7 +100,7 @@ validate terraform 0.14:
   allow_failure: true
 
 validate terraform 0.15:
-  stage: validate
+  stage: test
   image:
     name: $TERRAFORM_TEST_IMAGE
     entrypoint:
@@ -115,7 +116,7 @@ validate terraform 0.15:
   allow_failure: true
 
 validate target terraform:
-  stage: validate
+  stage: test
   image:
     name: $TERRAFORM_TEST_IMAGE
     entrypoint:
@@ -129,7 +130,7 @@ validate target terraform:
     - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE
 
 launch single-node cluster:
-  stage: test
+  stage: launch
   image:
     name: $TERRAFORM_TEST_IMAGE
     entrypoint:
@@ -145,10 +146,10 @@ launch single-node cluster:
       - .terraform.lock.hcl
     expire_in: 1 hour
   rules:
-    - if: $CI_COMMIT_MESSAGE !~ /^\[DOC\]/
+    - if: $CI_COMMIT_TAG || $CI_COMMIT_BRANCH == "github"
 
 launch multi-node cluster:
-  stage: test
+  stage: launch
   image:
     name: $TERRAFORM_TEST_IMAGE
     entrypoint:
@@ -164,7 +165,7 @@ launch multi-node cluster:
       - .terraform.lock.hcl
     expire_in: 1 hour
   rules:
-    - if: $CI_COMMIT_MESSAGE !~ /^\[DOC\]/
+    - if: $CI_COMMIT_TAG || $CI_COMMIT_BRANCH == "github"
 
 push updated documentation:
   stage: deploy
