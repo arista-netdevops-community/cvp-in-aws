@@ -48,9 +48,12 @@ stages:
   script:
     - sed -i "s/\(cvp_cluster_name.*=\) \".*\"/\1 \"cvp-ci-cluster-${CI_JOB_ID}\"/g" $VAR_FILE
     - terraform apply -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
-    - terraform refresh -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE && terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve || terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
-  after_script:
-    - terraform refresh -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE && terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve || terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
+    - |
+        until terraform plan -destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -out=${CI_JOB_ID}.destroyplan; do
+          echo Destroy plan failed. Retrying...
+          sleep 5
+        done
+    - terraform apply ${CI_JOB_ID}.destroyplan
 
 check for sensitive variables:
   stage: validate
