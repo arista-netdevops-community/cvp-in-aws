@@ -67,6 +67,11 @@ use github module URLs:
     - sed -i "s/development_release/$CI_COMMIT_SHORT_SHA/gi" main.tf
   rules:
     - if: $CI_COMMIT_BRANCH == "github"
+  artifacts:
+    paths:
+      - main.tf
+      - README.md
+    expire_in: 1 hour
 
 generate documentation:
   stage: document
