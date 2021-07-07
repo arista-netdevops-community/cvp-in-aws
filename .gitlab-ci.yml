@@ -1,3 +1,12 @@
+stages:
+  - validate
+  - build
+  - test
+  - launch
+  - document
+  - deploy
+  - publish
+
 .install_vault: &install_vault
   - curl -s https://releases.hashicorp.com/vault/1.7.3/vault_1.7.3_linux_amd64.zip -o /tmp/vault.zip
   - unzip /tmp/vault.zip -d /usr/bin
@@ -42,14 +51,6 @@
     - terraform refresh -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE && terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve || terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
   after_script:
     - terraform refresh -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE && terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve || terraform destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
-
-stages:
-  - validate
-  - build
-  - test
-  - launch
-  - document
-  - deploy
 
 check for sensitive variables:
   stage: validate
@@ -189,9 +190,14 @@ push updated documentation:
     - git add -f .terraform.lock.hcl
     - git diff-index --quiet HEAD || git commit -m "$CI_COMMIT_MESSAGE "
     - git push -o ci.skip http://root:$CI_DEPLOY_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:${CI_COMMIT_BRANCH:-$CI_COMMIT_TAG}
+  artifacts:
+    paths:
+      - README.md
+      - .terraform.lock.hcl
+    expire_in: 1 hour
 
 push to github:
-  stage: deploy
+  stage: publish
   image:
     name: alpine/git:latest
     entrypoint:
