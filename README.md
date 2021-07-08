@@ -58,7 +58,7 @@ Terraform is distributed as a single binary. Install Terraform by unzipping it a
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_cvp_cluster"></a> [cvp\_cluster](#module\_cvp\_cluster) | ./modules/cvp-cluster | n/a |
-| <a name="module_cvp_provision_nodes"></a> [cvp\_provision\_nodes](#module\_cvp\_provision\_nodes) | git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git | v3.0.1 |
+| <a name="module_cvp_provision_nodes"></a> [cvp\_provision\_nodes](#module\_cvp\_provision\_nodes) | git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git | v3.0.2 |
 <!-- END_TF_REQS -->
 
 ###  2.2. <a name='AWSCLI'></a>AWS CLI
