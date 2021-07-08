@@ -221,7 +221,7 @@ module "cvp_cluster" {
   eos_ip_range                     = var.eos_ip_range
   vm_type                          = var.cvp_cluster_vm_type
   vm_image                         = local.cvp_cluster.vm_image.location
-  vm_ssh_key                       = fileexists(var.cvp_cluster_vm_key) == true ? "${split(" ", file(var.cvp_cluster_vm_key))[0]} ${split(" ", file(var.cvp_cluster_vm_key))[1]}" : "${split(" ", file(abspath(local_file.ssh_public_key.filename)))[0]} ${split(" ", file(abspath(local_file.ssh_public_key.filename)))[1]}"
+  vm_ssh_key                       = fileexists(var.cvp_cluster_vm_key) ? "${split(" ", file(var.cvp_cluster_vm_key))[0]} ${split(" ", file(var.cvp_cluster_vm_key))[1]}" : (fileexists(abspath(local_file.ssh_public_key.filename)) ? "${split(" ", file(abspath(local_file.ssh_public_key.filename)))[0]} ${split(" ", file(abspath(local_file.ssh_public_key.filename)))[1]}" : null)
   vm_admin_user                    = var.cvp_cluster_vm_admin_user
   vm_remove_data_disk              = var.cvp_cluster_remove_disks
 
@@ -243,9 +243,21 @@ resource "null_resource" "start_instances" {
 locals {
   vm_commons = {
     ssh = {
-      username         = var.cvp_cluster_vm_admin_user
-      private_key      = var.cvp_cluster_vm_private_key != null ? (fileexists(var.cvp_cluster_vm_private_key) == true ? file(var.cvp_cluster_vm_private_key) : file(local_file.ssh_private_key.filename)) : file(local_file.ssh_private_key.filename)
-      private_key_path = var.cvp_cluster_vm_private_key != null ? (fileexists(var.cvp_cluster_vm_private_key) == true ? var.cvp_cluster_vm_private_key : abspath(local_file.ssh_private_key.filename)) : abspath(local_file.ssh_private_key.filename)
+      username = var.cvp_cluster_vm_admin_user
+      private_key = var.cvp_cluster_vm_private_key != null ? (
+        fileexists(var.cvp_cluster_vm_private_key) ? file(var.cvp_cluster_vm_private_key) : (
+          fileexists(local_file.ssh_private_key.filename) ? file(local_file.ssh_private_key.filename) : null
+        )
+        ) : (
+        fileexists(local_file.ssh_private_key.filename) ? file(local_file.ssh_private_key.filename) : null
+      )
+      private_key_path = var.cvp_cluster_vm_private_key != null ? (
+        fileexists(var.cvp_cluster_vm_private_key) ? var.cvp_cluster_vm_private_key : (
+          fileexists(local_file.ssh_private_key.filename) ? abspath(local_file.ssh_private_key.filename) : null
+        )
+        ) : (
+        fileexists(local_file.ssh_private_key.filename) ? abspath(local_file.ssh_private_key.filename) : null
+      )
       public_key = var.cvp_cluster_vm_key != null ? (
         fileexists(var.cvp_cluster_vm_key) ? file(var.cvp_cluster_vm_key) : (
           fileexists(abspath(local_file.ssh_public_key.filename)) ? file(abspath(local_file.ssh_public_key.filename)) : null
