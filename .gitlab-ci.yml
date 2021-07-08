@@ -54,6 +54,13 @@ stages:
           sleep 5
         done
     - terraform apply ${CI_JOB_ID}.destroyplan
+  after_script:
+    - |
+        until terraform plan -destroy -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -out=${CI_JOB_ID}.destroyplan; do
+          echo Destroy plan failed. Retrying...
+          sleep 5
+        done
+    - terraform apply ${CI_JOB_ID}.destroyplan
 
 check for sensitive variables:
   stage: validate
