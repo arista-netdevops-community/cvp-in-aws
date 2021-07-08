@@ -246,8 +246,20 @@ locals {
       username         = var.cvp_cluster_vm_admin_user
       private_key      = var.cvp_cluster_vm_private_key != null ? (fileexists(var.cvp_cluster_vm_private_key) == true ? file(var.cvp_cluster_vm_private_key) : file(local_file.ssh_private_key.filename)) : file(local_file.ssh_private_key.filename)
       private_key_path = var.cvp_cluster_vm_private_key != null ? (fileexists(var.cvp_cluster_vm_private_key) == true ? var.cvp_cluster_vm_private_key : abspath(local_file.ssh_private_key.filename)) : abspath(local_file.ssh_private_key.filename)
-      public_key       = var.cvp_cluster_vm_key != null ? (fileexists(var.cvp_cluster_vm_key) == true ? file(var.cvp_cluster_vm_key) : file(local_file.ssh_public_key.filename)) : file(local_file.ssh_public_key.filename)
-      public_key_path  = var.cvp_cluster_vm_key != null ? (fileexists(var.cvp_cluster_vm_key) == true ? var.cvp_cluster_vm_key : abspath(local_file.ssh_public_key.filename)) : abspath(local_file.ssh_public_key.filename)
+      public_key = var.cvp_cluster_vm_key != null ? (
+        fileexists(var.cvp_cluster_vm_key) ? file(var.cvp_cluster_vm_key) : (
+          fileexists(abspath(local_file.ssh_public_key.filename)) ? file(abspath(local_file.ssh_public_key.filename)) : null
+        )
+        ) : (
+        fileexists(abspath(local_file.ssh_public_key.filename)) ? file(abspath(local_file.ssh_public_key.filename)) : null
+      )
+      public_key_path = var.cvp_cluster_vm_key != null ? (
+        fileexists(var.cvp_cluster_vm_key) ? var.cvp_cluster_vm_key : (
+          fileexists(abspath(local_file.ssh_public_key.filename)) ? abspath(local_file.ssh_public_key.filename) : null
+        )
+        ) : (
+        fileexists(abspath(local_file.ssh_public_key.filename)) ? abspath(local_file.ssh_public_key.filename) : null
+      )
     }
     bootstrap = {
       username = "root"
@@ -391,7 +403,7 @@ locals {
   ])
 }
 module "cvp_provision_nodes" {
-  source = "git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git?ref=v3.0.1"
+  source = "git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git?ref=v3.0.2"
 
   cloud_provider                    = "aws"
   vm                                = length(local.vm) == 1 ? [local.vm[0]] : local.vm
