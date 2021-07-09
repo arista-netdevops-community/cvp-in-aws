@@ -101,7 +101,7 @@ $ terraform plan -out=plan.out -var-file=examples/one-node-cvp-deployment.tfvars
 ```
 
 - Review your plan
-- Apply the generated plan: 
+- Apply the generated plan:
 
 ```bash
 terraform apply plan.out
@@ -111,14 +111,33 @@ terraform apply plan.out
 
 ##  4. <a name='AddingEOSdevices'></a>Adding EOS devices
 If devices are in a network that can't be reached by CVP they need to be added by configuring TerminAttr on the devices themselves (similar to any setup behind NAT). At the end of the
-terraform run a suggested TerminAttr configuration line will be displayed containing the appropriate `ingestgrpcurl` and `ingestauth` parameters:
+terraform run a suggested TerminAttr configuration line will be displayed containing the appropriate `cvaddr` and `cvauth` parameters:
 
 ```
 Provisioning complete. To add devices use the following TerminAttr configuration:
-exec /usr/bin/TerminAttr -ingestgrpcurl=34.71.81.254:9910 -cvcompression=gzip -ingestauth=key,JkqAGsEyGPmUZ3X0 -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -ingestexclude=/Sysdb/cell/1/agent,/Sysdb/cell/2/agent -ingestvrf=default -taillogs
+exec /usr/bin/TerminAttr -cvaddr=34.71.81.254:9910 -cvcompression=gzip -cvauth=key,JkqAGsEyGPmUZ3X0 -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -ingestexclude=/Sysdb/cell/1/agent,/Sysdb/cell/2/agent -cvvrf=default -taillogs
 ```
 
 The `exec` configuration can be copy-pasted and should be usable in most scenarios.
+
+> Note It is highly recommended to use [device authentication via certificates](https://eos.arista.com/toi/cvp-2019-1-0/cvp-with-terminattr-certificates/). In case of CVP behind NAT the onboarding token would have to be manually generated. This can be done on the UI starting from 2021.2.0. In older CVP versions the token can be generated from the CLI.
+
+To enroll with certificates the following steps can be used:
+
+1\. Generate the token on CVP CLI with `curl -d '{"reenrollDevices":["*"]}' -k https://127.0.0.1:9911/cert/createtoken`
+2\. Save the token on EOS to a file:
+
+`>enable`
+`#copy terminal: file:/tmp/token`
+`<paste the generated token here and press Ctrl+D>`
+
+3\. Configure TerminAttr
+
+```
+daemon TerminAttr
+   exec /usr/bin/TerminAttr -cvaddr=34.71.81.254:9910 -cvcompression=gzip -cvauth=token,/tmp/token -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -ingestexclude=/Sysdb/cell/1/agent,/Sysdb/cell/2/agent -cvvrf=default -taillogs
+   no shutdown
+```
 
 ##  5. <a name='Variables'></a>Variables
 Required variables are asked at runtime unless specified on the command line. Using a [.tfvars file](terraform-tfvars) is recommended in most cases.

@@ -7,7 +7,7 @@ output "cvp_instances_credentials" {
   description = "Public IP addresses and usernames of the cluster instances."
 }
 output "cvp_terminattr_instructions" {
-  value       = "Provisioning complete. To add EOS devices use the following TerminAttr configuration:\nexec /usr/bin/TerminAttr -ingestgrpcurl=${local.ingest_addr} -cvcompression=gzip -ingestauth=${module.cvp_provision_nodes.cvp_ingest_key} -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -ingestexclude=/Sysdb/cell/1/agent,/Sysdb/cell/2/agent -ingestvrf=default -taillogs"
+  value       = "Provisioning complete. To add EOS devices use the following TerminAttr configuration:\nexec /usr/bin/TerminAttr -cvaddr=${local.ingest_addr} -cvcompression=gzip -cvauth=${module.cvp_provision_nodes.cvp_ingest_key} -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -ingestexclude=/Sysdb/cell/1/agent,/Sysdb/cell/2/agent -cvvrf=default -taillogs"
   description = "Instructions to add EOS devices to the CVP cluster."
 }
 #output "cluster_node_data" {
