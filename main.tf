@@ -13,8 +13,8 @@ provider "aws" {
   profile = var.aws_profile
   default_tags {
     tags = {
-      cvp-in-aws_Source  = "https://gitlab.aristanetworks.com/tac-team/cvp-in-aws"
-      cvp-in-aws_Version = "DEVELOPMENT_RELEASE"
+      cvp-in-aws_Source  = "https://github.com/arista-netdevops-community/cvp-in-aws"
+      cvp-in-aws_Version = "48d9ab60"
     }
   }
 }
@@ -415,7 +415,7 @@ locals {
   ])
 }
 module "cvp_provision_nodes" {
-  source = "git::https://gitlab.aristanetworks.com/tac-team/cvp-ansible-provisioning.git?ref=v3.0.2"
+  source = "git::https://github.com/arista-netdevops-community/cvp-ansible-provisioning.git?ref=v3.0.2"
 
   cloud_provider                    = "aws"
   vm                                = length(local.vm) == 1 ? [local.vm[0]] : local.vm
