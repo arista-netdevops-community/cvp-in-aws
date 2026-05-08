@@ -1,0 +1,5 @@
+.aws
+.ssh
+.terraform
+*.tfstate*
+plan.out

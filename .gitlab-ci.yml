@@ -1,0 +1,199 @@
+stages:
+  - validate
+  - build
+  - test
+  - launch
+  - document
+  - deploy
+
+.install_vault: &install_vault
+  - curl -s https://releases.hashicorp.com/vault/1.7.3/vault_1.7.3_linux_amd64.zip -o /tmp/vault.zip
+  - unzip /tmp/vault.zip -d /usr/bin
+.install_terraform: &install_terraform
+  - curl -L https://raw.githubusercontent.com/warrensbox/terraform-switcher/release/install.sh | bash
+  - |
+    TERRAFORM_VERSION_DOTS=$(echo ${TERRAFORM_PIPELINE_VERSION:-$TERRAFORM_VERSION}|awk -F. '{print NF-1}');
+    if [ $TERRAFORM_VERSION_DOTS == 1 ]; then SWITCH_OPTS="-s"; fi;
+    tfswitch $SWITCH_OPTS ${TERRAFORM_PIPELINE_VERSION:-$TERRAFORM_VERSION}
+.install_yum_packages: &install_yum_packages
+  - amazon-linux-extras install epel
+  - yum -y install git nmap-ncat unzip ansible jq which tar gzip
+.install_apt_packages: &install_apt_packages
+  - apt-get update
+  - apt-get install -y git netcat unzip ansible
+
+.config_aws: &config_aws
+  - vault login -address=$VAULT_HOST -method=$VAULT_LOGIN_METHOD username=$VAULT_LOGIN_USERNAME password="$VAULT_LOGIN_PASSWORD"
+  - vault write -address=$VAULT_HOST -format=json aws-anet-tac-se-ce/sts/OL-EXT_TAC-PWUser ttl="1h" > /tmp/${CI_JOB_ID}.vault
+  - mkdir -p ~/.aws
+  - echo -e "[profile cvp-profile]\nregion = us-east-2" > ~/.aws/config
+  - echo -e "[cvp-profile]\naws_access_key_id=$(jq -r .data.access_key < /tmp/${CI_JOB_ID}.vault)\naws_secret_access_key=$(jq -r .data.secret_key < /tmp/${CI_JOB_ID}.vault)\naws_session_token=$(jq -r .data.security_token < /tmp/${CI_JOB_ID}.vault)" > ~/.aws/credentials
+.config_git: &config_git
+  - git config --global credential.helper store
+  - echo "https://gitlab-ci-token:${GITLAB_INTEGRATION_TOKEN}@gitlab.aristanetworks.com" > ~/.git-credentials
+
+.before_terraform: &before_terraform
+  before_script:
+    - *install_yum_packages
+    - *install_vault
+    - *install_terraform
+    - *config_git
+    - *config_aws
+    - sed -i "s/\(cvp_download_token.*=\) \"PLACE_YOUR_PORTAL_TOKEN_HERE\"/\1 \"$ARISTA_API_TOKEN\"/g" $VAR_FILE
+    - terraform init
+
+.run_terraform: &run_terraform
+  <<: *before_terraform
+  script:
+    - sed -i "s/\(cvp_cluster_name.*=\) \".*\"/\1 \"cvp-ci-cluster-${CI_JOB_ID}\"/g" $VAR_FILE
+    - timeout -k 5m 40m terraform apply -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve
+    - |
+        until terraform destroy -lock=false -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve; do
+          echo Destroy failed. Retrying...
+          sleep 5
+        done
+  after_script:
+    - |
+        until terraform destroy -lock=false -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE -auto-approve; do
+          echo Destroy failed. Retrying...
+          sleep 5
+        done
+
+check for sensitive variables:
+  stage: validate
+  image: alpine:latest
+  script:
+    - if egrep -R '^cvp_download_token(.*)' *|grep -v PLACE_YOUR_PORTAL_TOKEN_HERE; then false; else true; fi
+
+use github module URLs:
+  stage: build
+  image: alpine:latest
+  script:
+    - sed -i 's_https://gitlab.aristanetworks.com/tac-team/_https://github.com/arista-netdevops-community/_g' main.tf
+    - sed -i 's_https://gitlab.aristanetworks.com/tac-team/_https://github.com/arista-netdevops-community/_g' README.md
+    - sed -i 's/"gitlab"/"github"/g' main.tf
+    - sed -i "s/development_release/$CI_COMMIT_SHORT_SHA/gi" main.tf
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  artifacts:
+    paths:
+      - main.tf
+      - README.md
+    expire_in: 24 hours
+
+generate documentation:
+  stage: document
+  image: golang:1.16
+  script:
+    - sed -i "s/tested with terraform \`.*\`,/tested with terraform \`$TERRAFORM_VERSION\`,/g" README.md
+    - GO111MODULE="on" go get github.com/terraform-docs/terraform-docs@v0.14.1
+    - terraform-docs pretty .
+    - terraform-docs markdown --output-file README.md .
+    - test -f .terraform-docs-reqs.yml && terraform-docs --config .terraform-docs-reqs.yml markdown --output-file README.md .
+  artifacts:
+    paths:
+      - README.md
+      - .terraform.lock.hcl
+      - main.tf
+    expire_in: 24 hours
+
+validate terraform 0.14:
+  stage: test
+  image:
+    name: $TERRAFORM_TEST_IMAGE
+    entrypoint:
+      - /bin/bash
+      - -c
+  environment: cvp-tests
+  variables:
+    VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
+    TERRAFORM_PIPELINE_VERSION: "0.14"
+  <<: *before_terraform
+  script:
+    - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE
+  allow_failure: true
+
+validate terraform 0.15:
+  stage: test
+  image:
+    name: $TERRAFORM_TEST_IMAGE
+    entrypoint:
+      - /bin/bash
+      - -c
+  environment: cvp-tests
+  variables:
+    VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
+    TERRAFORM_PIPELINE_VERSION: "0.15"
+  <<: *before_terraform
+  script:
+    - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE
+  allow_failure: true
+
+validate target terraform:
+  stage: test
+  image:
+    name: $TERRAFORM_TEST_IMAGE
+    entrypoint:
+      - /bin/bash
+      - -c
+  environment: cvp-tests
+  variables:
+    VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
+  <<: *before_terraform
+  script:
+    - terraform plan -state=${CI_JOB_ID}.tfstate -var-file=$VAR_FILE
+
+launch single-node cluster:
+  stage: launch
+  image:
+    name: $TERRAFORM_TEST_IMAGE
+    entrypoint:
+      - /bin/bash
+      - -c
+  environment: cvp-tests
+  variables:
+    VAR_FILE: "examples/one-node-cvp-deployment.tfvars"
+  <<: *run_terraform
+  artifacts:
+    paths:
+      - "*.tfstate"
+      - .terraform.lock.hcl
+    expire_in: 24 hours
+  rules:
+    - if: $CI_COMMIT_TAG || $FORCE_LAUNCH || $FORCE_LAUNCH_SINGLE
+
+launch multi-node cluster:
+  stage: launch
+  image:
+    name: $TERRAFORM_TEST_IMAGE
+    entrypoint:
+      - /bin/bash
+      - -c
+  environment: cvp-tests
+  variables:
+    VAR_FILE: "examples/multi-node-cvp-deployment.tfvars"
+  <<: *run_terraform
+  artifacts:
+    paths:
+      - "*.tfstate"
+      - .terraform.lock.hcl
+    expire_in: 24 hours
+  rules:
+    - if: $CI_COMMIT_TAG || $FORCE_LAUNCH || $FORCE_LAUNCH_MULTI
+
+push updated documentation:
+  stage: deploy
+  image:
+    name: alpine/git:latest
+    entrypoint:
+        - /bin/sh
+        - -c
+  environment:
+    name: gitlab
+  before_script:
+    - git config --global user.name "$GITLAB_USER_NAME"
+    - git config --global user.email "$GITLAB_USER_EMAIL"
+  script:
+    - git add .
+    - git diff-index --quiet HEAD || git commit -m "$CI_COMMIT_MESSAGE "
+    - git push -o ci.skip http://root:$CI_DEPLOY_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git HEAD:${CI_COMMIT_BRANCH:-$CI_COMMIT_TAG}

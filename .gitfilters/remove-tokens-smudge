@@ -1,0 +1,14 @@
+#!/bin/bash
+# This filter avoids submitting tokens to the git repo. To use this:
+#
+# 1. Create a file ~/.cvp_download_token with your download token 
+# 2. Add the following lines to your .git/config:
+#
+# [filter "remove-tokens"]
+#   clean  = .gitfilters/remove-tokens-clean
+#   smudge = .gitfilters/remove-tokens-smudge
+set -e
+if [ -f ~/.cvp_download_token ]; then
+  TOKEN=$(cat ~/.cvp_download_token)
+  sed "s/\(cvp_download_token.*=\) \"PLACE_YOUR_PORTAL_TOKEN_HERE\"/\1 \"$TOKEN\"/g"
+fi

@@ -1,0 +1,8 @@
+version: ""
+
+sections:
+  hide: []
+  show: [inputs, outputs]
+
+settings:
+  indent: 3

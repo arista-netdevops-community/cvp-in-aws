@@ -1,0 +1,15 @@
+version: ""
+
+sections:
+  hide: []
+  show: [requirements, providers, modules]
+
+output:
+  mode: inject
+  template: |-
+    <!-- BEGIN_TF_REQS -->
+    {{ .Content }}
+    <!-- END_TF_REQS -->
+
+settings:
+  indent: 4
